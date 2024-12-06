@@ -52,7 +52,10 @@ int main()
   }
 }
 
-void adder(vector<Student*> &stu) {
+void adder(Node* &head) {
+  /*
+  bool recur = false;
+  if (recur == false) {
   Node* current = head;
   
   Student* newStu = new Student;
@@ -64,10 +67,22 @@ void adder(vector<Student*> &stu) {
   cin >> newStu->id;
   cout << "Grade Point Average?" << endl;
   cin >> newStu->gpa;
-
-  stu.push_back(newStu);
-  cout << newStu->first << " has been added." << endl;
-}
+  }
+  
+  if (current == nullptr) {
+    head = new Node(newStu);
+  }
+  else {
+    if (current->getNext() == nullptr) {
+      current->setNext(new Node(nullptr));
+      current->getNext()->setStudent(newStu);
+      cout << newStu->getFirst() << " has been added." << endl;
+    }
+    else {
+      adder(current->getNext(), newStu)
+    }
+    }*/
+  }
 
 void printer(vector<Student*> &stu) {
   for (auto it = stu.begin(); it != stu.end(); ++it) {
