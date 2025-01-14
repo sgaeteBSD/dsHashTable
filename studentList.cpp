@@ -25,7 +25,7 @@ int main()
   cout << stu[0]->first << stu[0]->id << stu[0]->gpa << endl;
   adder(stu);*/
 
-  Node* head = nullptr;
+  Node* head = NULL;
   bool input = true;
   while (input == true) {
     

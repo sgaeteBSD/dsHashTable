@@ -1,27 +1,40 @@
-#include "Node.h"
+/*
+ * This is Parth's code
+ */
 
-Node::Node(Student* newStu) {
-  stu = newStu;
-  next = nullptr;
+#include <iostream>
+#include <cstring>
+#include "node.h"
+
+using namespace std;
+
+Node::Node(Student* newStudent) {
+  // constructor
+  // creating new student
+  Student* student = new Student();
+  next = NULL; // setting next to null
 }
 
-Node::~Node() {
-  delete stu;
-  next = nullptr;
-}
-
-void Node::setStudent(Student* newStu) {
-  stu = newStu;
-}
-
-Student* Node::getStudent() {
-  return stu;
-}
-
-void Node::setNext(Node* newNext) {
-  next = newNext;
+Node::~Node(){
+  // destructor
+  // deleting the studennt
+  delete student;
+  next = NULL;
 }
 
 Node* Node::getNext() {
   return next;
+  // return the next variable when going to the next node.
+}
+
+Student* Node::getStudent() {
+  return student;
+}
+
+void Node::setNext(Node* nextNode) {
+  next = nextNode;
+}
+
+void Node::setStudent(Student* newStudent) {
+  student = newStudent;
 }
