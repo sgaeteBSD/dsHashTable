@@ -1,3 +1,12 @@
+/*
+ * C++ Linked Student List
+ * ADD and DELETE students to your Student List.
+ * Program will keep track of student names, ID, and GPA.
+ * ADD, PRINT, DELETE, QUIT, AVERAGE
+ * 1/16/2025
+ * Santiago Gaete
+ */
+
 #include "Student.h"
 #include "Node.h"
 #include <iostream>
