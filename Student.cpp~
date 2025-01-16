@@ -3,6 +3,7 @@
 using namespace std;
 
 Student::Student() {
+  first = new char[80];
   cout << "First name?" << endl;
   cin >> first;
   cout << "Last name?" << endl;

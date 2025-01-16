@@ -3,13 +3,17 @@
 using namespace std;
 
 Student::Student() {
+  //Input prompt student details
   first = new char[80];
   cout << "First name?" << endl;
   cin >> first;
+  last = new char[80];
   cout << "Last name?" << endl;
   cin >> last;
+  id = 0;
   cout << "ID Number?" << endl;
   cin >> id;
+  gpa = 0;
   cout << "Grade Point Average?" << endl;
   cin >> gpa;
 }
