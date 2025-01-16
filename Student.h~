@@ -1,5 +1,6 @@
 #ifndef STUDENT_H
 #define STUDENT_H
+#include <cstring>
 
 class Student {
   private:
@@ -8,13 +9,18 @@ class Student {
   int id;
   float gpa;
 public:
-  Student();
+  Student(char* first, char* last, int id, float gpa);
   ~Student();
 
   char* getFirst();
   char* getLast();
   int getID();
   float getGPA();
+
+  void setFirst(char* newFirst);
+  void setLast(char* newLast);
+  void setID(int newID);
+  void setGPA(float newGPA);
 };
 
 #endif

@@ -11,7 +11,7 @@ using namespace std;
 Node::Node(Student* newStudent) {
   // constructor
   // creating new student
-  Student* student = new Student();
+  student = newStudent;
   next = NULL; // setting next to null
 }
 

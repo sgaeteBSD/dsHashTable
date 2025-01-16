@@ -2,13 +2,16 @@
 
 using namespace std;
 
-Student::Student(char* first, char* last, int id, float gpa) {
-  this->first = new char[strlen(first) + 1];
-  strcpy(this->first, first);
-  this->last = new char[strlen(last) + 1];
-  strcpy(this->last, last);
-  this->id = id;
-  this->gpa = gpa;
+Student::Student() {
+  first = new char[80];
+  cout << "First name?" << endl;
+  cin >> first;
+  cout << "Last name?" << endl;
+  cin >> last;
+  cout << "ID Number?" << endl;
+  cin >> id;
+  cout << "Grade Point Average?" << endl;
+  cin >> gpa;
 }
 
 Student::~Student() {
@@ -33,19 +36,19 @@ float Student::getGPA() {
 }
 
 void Student::setFirst(char* newFirst) {
-  first = new char[strlen(newFirst) + 1];
+  first = new char[80];
   strcpy(first, newFirst);
 }
 
-void Student::getLast(char* newLast) {
-  last = new char[strlen(newLast) + 1];
+void Student::setLast(char* newLast) {
+  last = new char[80];
   strcpy(last, newLast);
 }
 
-void Student::getID(int newID) {
+void Student::setID(int newID) {
   id = newID;
 }
 
-void Student::getGPA(float newGPA;) {
+void Student::setGPA(float newGPA) {
   gpa = newGPA;
 }

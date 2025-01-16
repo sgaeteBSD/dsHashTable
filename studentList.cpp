@@ -9,9 +9,9 @@
 using namespace std;
 
 void adder(Node* &head);
-void printer(Node* next, Node head);
-void deleter(Node* &head);
-void quitter(Node* head, bool &input);
+//void printer(Node* next, Node head);
+//void deleter(Node* &head);
+//void quitter(Node* head, bool &input);
 
 int main()
 {
@@ -38,13 +38,13 @@ int main()
       adder(head);
     }
     else if (strcmp(command, "PRINT") == 0) {
-      printer(head, head);
+      //printer(head, head);
     }
     else if (strcmp(command, "DELETE") == 0) {
-      deleter(head);
+      //deleter(head);
     }
     else if (strcmp(command, "QUIT") == 0) {
-      quitter(head, input);
+      //quitter(head, input);
     }
     else {
       cout << "Invalid input! Try again." << endl;
@@ -53,37 +53,28 @@ int main()
 }
 
 void adder(Node* &head) {
-  /*
-  bool recur = false;
-  if (recur == false) {
   Node* current = head;
-  
-  Student* newStu = new Student;
-  cout << "First name?" << endl;
-  cin >> newStu->first;
-  cout << "Last name?" << endl;
-  cin >> newStu->last;
-  cout << "ID Number?" << endl;
-  cin >> newStu->id;
-  cout << "Grade Point Average?" << endl;
-  cin >> newStu->gpa;
-  }
-  
   if (current == nullptr) {
+    Student* newStu = new Student;
+    cout << "hello" << endl;
     head = new Node(newStu);
   }
   else {
     if (current->getNext() == nullptr) {
-      current->setNext(new Node(nullptr));
-      current->getNext()->setStudent(newStu);
+      cout << "hello2" << endl;
+      //current->setNext(new Node(nullptr));
+      Student* newStu = new Student;
+      current->setNext(new Node(newStu));
       cout << newStu->getFirst() << " has been added." << endl;
     }
     else {
-      adder(current->getNext(), newStu)
+      Node* temp = current->getNext();
+	adder(temp);
     }
-    }*/
   }
-
+}
+    
+    /*
 void printer(vector<Student*> &stu) {
   for (auto it = stu.begin(); it != stu.end(); ++it) {
     cout << (*it)->first << " " << (*it)->last << ", " << (*it)->id << ", " <<
@@ -110,3 +101,4 @@ void quitter(vector<Student*> &stu, bool &input) {
   cout << "Goodbye!" << endl;
   input = false;
 }
+    */
