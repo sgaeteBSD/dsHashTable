@@ -15,7 +15,7 @@
 
 using namespace std;
 
-void adder(Node* &head);
+void adder(Node* &head, Student* newStu);
 void printer(Node* head, Node* next);
 void deleter(Node* &head, int deleteID);
 void quitter(Node* head, bool &input);
@@ -34,7 +34,8 @@ int main()
     cin >> command; 
     cin.ignore();
     if (strcmp(command, "ADD") == 0) {
-      adder(head);
+      Student* newStu = new Student; //create new student (constructor will prompt input)
+      adder(head, newStu);
     }
     else if (strcmp(command, "PRINT") == 0) {
       printer(head, head);
@@ -64,22 +65,31 @@ int main()
   }
 }
 
-void adder(Node* &head) {
+void adder(Node* &head, Student* newStu) {
   Node* current = head;
+  Node* temp = head;
   if (current == nullptr) {
-    Student* newStu = new Student; //create new student (constructor will prompt input)
     head = new Node(newStu); //apply to head
     cout << newStu->getFirst() << " has been added." << endl;
   }
+  else if (newStu->getID() < head->getStudent()->getID()) { //if head needs to be replaced with a greater ID
+    temp = head;
+    head = new Node(newStu);
+    head->setNext(temp);
+  }
   else {
     if (current->getNext() == nullptr) { //if end has been reached
-      Student* newStu = new Student;
       current->setNext(new Node(newStu)); //create a new node at the end of the list
       cout << newStu->getFirst() << " has been added." << endl;
     }
-    else { //walk to the end
+    else if (newStu->getID() < current->getNext()->getStudent()->getID()) { //place node in ID ordered spot
+      temp = current->getNext(); //store old next
+      current->setNext(new Node(newStu)); //place new next
+      current->getNext()->setNext(temp); //give old next to new next
+    }
+    else { //keep walking
       Node* temp = current->getNext(); //passer node* for recur
-      adder(temp); //recursion
+      adder(temp, newStu); //recursion
     }
   }
 }
