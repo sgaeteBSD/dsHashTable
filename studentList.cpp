@@ -13,23 +13,58 @@
 #include <cstring>
 #include <iomanip>
 
+#include <vector>
+#include <fstream>
+
 using namespace std;
 
 void adder(Node* &head, Student* newStu);
 void printer(Node* head, Node* next);
 void deleter(Node* &head, int deleteID);
 void quitter(Node* head, bool &input);
-void averager(Node* head, Node* next, float total, int count);
+void randStuFirst(vector<string> &firsts);
+void randStuLast(vector<string> &lasts);
+int hash(Node* node);
 
 int main()
 {
+  /*
+  int tblSize = 101;
+  Node* table[tblSize];
+  for (int a = 0; a < (sizeof(table) / sizeof(table[0])); a++) {
+    table[a] = nullptr;
+  }*/
+
   Node* head = nullptr;
+
+  string nameText;
+  
+  vector<string> firsts;
+  fstream FirstsFile("first-names.txt");
+  for (int a = 0; a < 30; a++) {
+    getline(FirstsFile, nameText);
+    firsts.push_back(nameText);
+    nameText = "";
+  }
+  //cout << firsts[29] << endl;
+  FirstsFile.close();
+
+  vector<string> lasts;
+  fstream LastsFile("last-names.txt");
+  for (int a = 0; a < 30; a++) {
+    getline(LastsFile, nameText);
+    firsts.push_back(nameText);
+    nameText = "";
+  }
+  //cout << lasts[29] << endl;
+  LastsFile.close();
+
   bool input = true;
   while (input == true) {
-    
+    cout << "Your commands are ADD, PRINT, DELETE, and QUIT." << endl;
+    cout << endl;
     cout << "Input a command." << endl;
     char command[8] = ""; //make sure to fit 7 chars + 1 terminating
-    //(i spent an hour on a bug and then i realized this was screwing up my memory... never again)
 
     cin >> command; 
     cin.ignore();
@@ -53,11 +88,6 @@ int main()
     }
     else if (strcmp(command, "QUIT") == 0) {
       quitter(head, input);
-    }
-    else if (strcmp(command, "AVERAGE") == 0) {
-      float total = 0; //added up gpas
-      int count = 0; //divisor
-      averager(head, head, total, count);
     }
     else {
       cout << "Invalid input! Try again." << endl;
@@ -136,13 +166,7 @@ void quitter(Node* head, bool &input) {
   input = false;
 }
 
-void averager(Node* head, Node* next, float total, int count) {
-  if (next != nullptr) {
-    total += next->getStudent()->getGPA();
-    count++;
-    averager(head, next->getNext(), total, count); //recursion
-  } else {
-    float average = total/count; //find average
-    cout << "Average GPA: " << fixed << setprecision(2) << average << endl;
-  }
+int hash(Node* node) {
+  //hash
+  return 1;
 }
