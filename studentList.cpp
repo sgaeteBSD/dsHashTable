@@ -45,14 +45,15 @@ int main()
     firsts.push_back(nameText);
     nameText = "";
   }
-  //cout << firsts[29] << endl;
+  //srand(time(NULL)); //random seed  
+  //cout << firsts[rand() % 25] << endl;
   FirstsFile.close();
 
   vector<string> lasts;
   fstream LastsFile("last-names.txt");
   for (int a = 0; a < 30; a++) {
     getline(LastsFile, nameText);
-    firsts.push_back(nameText);
+    lasts.push_back(nameText);
     nameText = "";
   }
   //cout << lasts[29] << endl;
@@ -62,7 +63,7 @@ int main()
     Node* newStudent = genStudent(firsts, lasts, a);
     int hashSlot = hashFunc(newStudent, tblSize);
     table[hashSlot] = newStudent;
-    cout << hashSlot << ": " << table[hashSlot] << endl;
+    cout << hashSlot << ": " << table[hashSlot]->getStudent()->getFirst() << endl;
   }
 
   bool input = true;
@@ -173,13 +174,17 @@ void quitter(Node* head, bool &input) {
 }
 
 Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount) {
-  srand(time(NULL)); //random seed
-  char* newFirst;
-  strcpy(newFirst, firsts[(rand() % 25)]);
-  char* newLast;
-  strcpy(newLast, lasts[(rand() % 25)]);
+  int randVal = (rand() % 25);
+  
+  string newFirst;
+  newFirst = firsts[randVal];
+  
+  string newLast;
+  newLast = lasts[randVal];
+
   float newGPA = ((rand() % 501) / 100);
   Student* newStu = new Student(false);
+
   newStu->setFirst(newFirst);
   newStu->setLast(newLast);
   newStu->setGPA(newGPA);
@@ -192,6 +197,6 @@ int hashFunc(Node* node, int tblSize) {
   //hash
   int stuID = node->getStudent()->getID();
   int hashNum = (((6 * stuID + 17) % 647) % tblSize);
-  cout << hashNum << endl;
+  //cout << hashNum << endl;
   return hashNum;
 }

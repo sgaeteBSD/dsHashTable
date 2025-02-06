@@ -5,10 +5,10 @@ using namespace std;
 Student::Student(bool user) {
   if (user == true) {
     //Input prompt student details
-    first = new string;
+    first = new char[80];
     cout << "First name?" << endl;
     cin >> first;
-    last = new string;
+    last = new char[80];
     cout << "Last name?" << endl;
     cin >> last;
     id = 0;
@@ -42,12 +42,12 @@ float Student::getGPA() {
 }
 
 void Student::setFirst(char* newFirst) {
-  first = new string;
+  first = new char[80];
   strcpy(first, newFirst);
 }
 
 void Student::setLast(char* newLast) {
-  last = new string;
+  last = new char[80];
   strcpy(last, newLast);
 }
 
