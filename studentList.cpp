@@ -18,9 +18,9 @@
 
 using namespace std;
 
-void adder(Node* &head, Student* newStu);
-void printer(Node* head, Node* next);
-void deleter(Node* &head, int deleteID);
+void adder(Student* newStu, Node* table[], int tblSize);
+void printer(Node* table[], int tblSize);
+void deleter(Node* table[], int deleteID);
 void quitter(Node* head, bool &input);
 Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount);
 int hashFunc(Node* node, int tblSize);
@@ -77,21 +77,16 @@ int main()
     cin.ignore();
     if (strcmp(command, "ADD") == 0) {
       Student* newStu = new Student(true); //create new student (constructor will prompt input)
-      adder(head, newStu);
+      adder(newStu, table, tblSize);
     }
     else if (strcmp(command, "PRINT") == 0) {
-      printer(head, head);
+      printer(table, tblSize);
     }
     else if (strcmp(command, "DELETE") == 0) {
-      if (head != nullptr) { //check for empty list 
 	int deleteID; //get ID to look for
         cout << "Enter the ID of the student to be deleted: ";
         cin >> deleteID;
-        deleter(head, deleteID);
-      }
-      else {
-	cout << "Your list is empty." << endl;
-      }
+        deleter(table, deleteID);
     }
     else if (strcmp(command, "QUIT") == 0) {
       quitter(head, input);
@@ -102,48 +97,55 @@ int main()
   }
 }
 
-void adder(Node* &head, Student* newStu) {
-  Node* current = head;
-  Node* temp = head;
-  if (current == nullptr) {
-    head = new Node(newStu); //apply to head
+void adder(Student* newStu, Node* table[], int tblSize) {
+  Node* newNode = new Node(newStu);
+  int hashSlot = hashFunc(newNode, tblSize);
+  if (table[hashSlot] == NULL) {
+    table[hashSlot] = newNode;
     cout << newStu->getFirst() << " has been added." << endl;
   }
-  else if (newStu->getID() < head->getStudent()->getID()) { //if head needs to be replaced with a greater ID
-    temp = head;
-    head = new Node(newStu);
-    head->setNext(temp);
-  }
-  else {
-    if (current->getNext() == nullptr) { //if end has been reached
-      current->setNext(new Node(newStu)); //create a new node at the end of the list
-      cout << newStu->getFirst() << " has been added." << endl;
+  //work on collisions/chaining here
+  else { //if head needs to be replaced with a greater ID
+    if (table[hashSlot]->getNext() == nullptr) {
+      Node* head = table[hashSlot];
+      head->setNext(newNode);
     }
-    else if (newStu->getID() < current->getNext()->getStudent()->getID()) { //place node in ID ordered spot
-      temp = current->getNext(); //store old next
-      current->setNext(new Node(newStu)); //place new next
-      current->getNext()->setNext(temp); //give old next to new next
+    else if (table[hashSlot]->getNext()->getNext() == nullptr) {
+      Node* temp = table[hashSlot]->getNext();
+      temp->setNext(newNode);
     }
-    else { //keep walking
-      Node* temp = current->getNext(); //passer node* for recur
-      adder(temp, newStu); //recursion
+    else { //rehash
+      //rehash
     }
   }
 }
     
-void printer(Node* head, Node* next) {
-  if (next == head) { //print "studentlist:" to start
-    cout << "Student List:" << endl;
-  }
-  if (next != nullptr) { //if this is a valid element, print it
-    cout << next->getStudent()->getFirst() << " " << next->getStudent()->getLast() << ", "
-         << next->getStudent()->getID() << ", " << fixed << setprecision(2) << next->getStudent()->getGPA() << endl;
-    printer(head, next->getNext()); //recursion
+void printer(Node* table[], int tblSize) {
+  for (int a = 0; a < tblSize; a++) {
+    if (table[a] != NULL) {
+      cout << a << ": " << table[a]->getStudent()->getFirst() << " " << table[a]->getStudent()->getLast() << ", "
+	   << table[a]->getStudent()->getID() << ", " << fixed << setprecision(2) << table[a]->getStudent()->getGPA()
+	   << endl;
+      if (table[a]->getNext() != NULL) {
+	cout << a << " (2): " << table[a]->getNext()->getStudent()->getFirst() << " "
+	     << table[a]->getNext()->getStudent()->getLast() << ", "
+	     << table[a]->getNext()->getStudent()->getID() << ", " << fixed << setprecision(2)
+	     << table[a]->getNext()->getStudent()->getGPA()
+	     << endl;
+	if (table[a]->getNext()->getNext() != NULL) {
+	  cout << a << " (3): " << table[a]->getNext()->getNext()->getStudent()->getFirst() << " "
+	       << table[a]->getNext()->getNext()->getStudent()->getLast() << ", "
+	       << table[a]->getNext()->getNext()->getStudent()->getID() << ", " << fixed << setprecision(2)
+	       << table[a]->getNext()->getNext()->getStudent()->getGPA()
+	     << endl;
+	}
+      }
+    }
   }
 }
-
-void deleter(Node* &head, int deleteID) {
-  if (head->getStudent()->getID() == deleteID) { //if HEAD is the one to be deleted, special case
+  
+void deleter(Node* table[], int deleteID) {
+  /*if (head->getStudent()->getID() == deleteID) { //if HEAD is the one to be deleted, special case
     Node* temp = head;
     head = head->getNext();
     cout << "Deleted student " << temp->getStudent()->getFirst() << endl;
@@ -165,7 +167,7 @@ void deleter(Node* &head, int deleteID) {
   else { //walk through
     Node* temp = current->getNext();
     deleter(temp, deleteID); //recursion
-  }
+    }*/
 }
 
 void quitter(Node* head, bool &input) {
