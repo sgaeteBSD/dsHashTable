@@ -22,18 +22,17 @@ void adder(Node* &head, Student* newStu);
 void printer(Node* head, Node* next);
 void deleter(Node* &head, int deleteID);
 void quitter(Node* head, bool &input);
-void randStuFirst(vector<string> &firsts);
-void randStuLast(vector<string> &lasts);
-int hash(Node* node);
+Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount);
+int hashFunc(Node* node, int tblSize);
 
 int main()
 {
-  /*
   int tblSize = 101;
   Node* table[tblSize];
   for (int a = 0; a < (sizeof(table) / sizeof(table[0])); a++) {
     table[a] = nullptr;
-  }*/
+  }
+  cout << "Initialized 101-table nodes to null." << endl;
 
   Node* head = nullptr;
 
@@ -59,6 +58,13 @@ int main()
   //cout << lasts[29] << endl;
   LastsFile.close();
 
+  for (int a = 1; a < 6; a++) {
+    Node* newStudent = genStudent(firsts, lasts, a);
+    int hashSlot = hashFunc(newStudent, tblSize);
+    table[hashSlot] = newStudent;
+    cout << hashSlot << ": " << table[hashSlot] << endl;
+  }
+
   bool input = true;
   while (input == true) {
     cout << "Your commands are ADD, PRINT, DELETE, and QUIT." << endl;
@@ -69,7 +75,7 @@ int main()
     cin >> command; 
     cin.ignore();
     if (strcmp(command, "ADD") == 0) {
-      Student* newStu = new Student; //create new student (constructor will prompt input)
+      Student* newStu = new Student(true); //create new student (constructor will prompt input)
       adder(head, newStu);
     }
     else if (strcmp(command, "PRINT") == 0) {
@@ -166,7 +172,26 @@ void quitter(Node* head, bool &input) {
   input = false;
 }
 
-int hash(Node* node) {
+Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount) {
+  srand(time(NULL)); //random seed
+  char* newFirst;
+  strcpy(newFirst, firsts[(rand() % 25)]);
+  char* newLast;
+  strcpy(newLast, lasts[(rand() % 25)]);
+  float newGPA = ((rand() % 501) / 100);
+  Student* newStu = new Student(false);
+  newStu->setFirst(newFirst);
+  newStu->setLast(newLast);
+  newStu->setGPA(newGPA);
+  newStu->setID(idCount);
+  Node* returnNode = new Node(newStu);
+  return returnNode;
+}
+
+int hashFunc(Node* node, int tblSize) {
   //hash
-  return 1;
+  int stuID = node->getStudent()->getID();
+  int hashNum = (((6 * stuID + 17) % 647) % tblSize);
+  cout << hashNum << endl;
+  return hashNum;
 }
