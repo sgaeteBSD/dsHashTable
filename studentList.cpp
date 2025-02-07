@@ -20,7 +20,7 @@ using namespace std;
 
 void adder(Student* newStu, Node* table[], int tblSize);
 void printer(Node* table[], int tblSize);
-void deleter(Node* table[], int deleteID);
+void deleter(Node* table[], int deleteID, int tblSize);
 void quitter(Node* head, bool &input);
 Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount);
 int hashFunc(Node* node, int tblSize);
@@ -42,6 +42,7 @@ int main()
   fstream FirstsFile("first-names.txt");
   for (int a = 0; a < 30; a++) {
     getline(FirstsFile, nameText);
+    FirstsFile.ignore(256, '\n');
     firsts.push_back(nameText);
     nameText = "";
   }
@@ -53,17 +54,24 @@ int main()
   fstream LastsFile("last-names.txt");
   for (int a = 0; a < 30; a++) {
     getline(LastsFile, nameText);
+    LastsFile.ignore(256, '\n');
     lasts.push_back(nameText);
     nameText = "";
   }
   //cout << lasts[29] << endl;
   LastsFile.close();
 
-  for (int a = 1; a < 6; a++) {
+  for (int a = 1; a < 6; a++) { //STUDENT GENERATOR
     Node* newStudent = genStudent(firsts, lasts, a);
     int hashSlot = hashFunc(newStudent, tblSize);
     table[hashSlot] = newStudent;
-    cout << hashSlot << ": " << table[hashSlot]->getStudent()->getFirst() << endl;
+    cout << hashSlot << ": " << endl;
+    cout << table[hashSlot]->getStudent()->getFirst() << endl; //first
+    cout << "last name: " << table[hashSlot]->getStudent()->getLast() << endl; //last
+    cout << table[hashSlot]->getStudent()->getFirst() << "last name: " << table[hashSlot]->getStudent()->getLast() << endl; //BUGGED
+    //hash slot, colon, space, first, *last*
+    cout << hashSlot << ": " << table[hashSlot]->getStudent()->getFirst() << " " << table[hashSlot]->getStudent()->getLast() << endl;
+    cout << endl;
   }
 
   bool input = true;
@@ -86,7 +94,7 @@ int main()
 	int deleteID; //get ID to look for
         cout << "Enter the ID of the student to be deleted: ";
         cin >> deleteID;
-        deleter(table, deleteID);
+        deleter(table, deleteID, tblSize);
     }
     else if (strcmp(command, "QUIT") == 0) {
       quitter(head, input);
@@ -120,12 +128,13 @@ void adder(Student* newStu, Node* table[], int tblSize) {
   }
 }
     
-void printer(Node* table[], int tblSize) {
+void printer(Node* table[], int tblSize) { //PRINT BY HASH TABLE
   for (int a = 0; a < tblSize; a++) {
     if (table[a] != NULL) {
       cout << a << ": " << table[a]->getStudent()->getFirst() << " " << table[a]->getStudent()->getLast() << ", "
-	   << table[a]->getStudent()->getID() << ", " << fixed << setprecision(2) << table[a]->getStudent()->getGPA()
-	   << endl;
+	<< table[a]->getStudent()->getID() << ", " << fixed << setprecision(2) << table[a]->getStudent()->getGPA()
+	<< endl;
+	
       if (table[a]->getNext() != NULL) {
 	cout << a << " (2): " << table[a]->getNext()->getStudent()->getFirst() << " "
 	     << table[a]->getNext()->getStudent()->getLast() << ", "
@@ -144,30 +153,39 @@ void printer(Node* table[], int tblSize) {
   }
 }
   
-void deleter(Node* table[], int deleteID) {
-  /*if (head->getStudent()->getID() == deleteID) { //if HEAD is the one to be deleted, special case
-    Node* temp = head;
-    head = head->getNext();
+void deleter(Node* table[], int deleteID, int tblSize) {
+  Student* delFinder = new Student(false);
+  delFinder->setID(deleteID);
+  Node* deleteFinder = new Node(delFinder);
+  int hashSlot = hashFunc(deleteFinder, tblSize);
+  if (table[hashSlot]->getStudent()->getID() == deleteID) {
+    if (table[hashSlot]->getNext() != NULL) {
+      Node* temp = table[hashSlot];
+      table[hashSlot] = temp->getNext();
+      cout << "Deleted student " << temp->getStudent()->getFirst() << endl;
+      delete temp;
+    }
+    else {
+      Node* temp = table[hashSlot];
+      table[hashSlot] = NULL;
+      cout << "Deleted student " << temp->getStudent()->getFirst() << endl;
+      delete temp;
+    }
+  }
+  else if (table[hashSlot]->getNext()->getStudent()->getID() == deleteID) {
+    if (table[hashSlot]->getNext() != NULL) {
+      Node* temp = table[hashSlot]->getNext();
+      table[hashSlot]->setNext(temp->getNext());
+      cout << "Deleted student " << temp->getStudent()->getFirst() << endl;
+      delete temp;
+    }
+  }
+  else if (table[hashSlot]->getNext()->getNext()->getStudent()->getID() == deleteID) {
+    Node* temp = table[hashSlot]->getNext()->getNext();
+    table[hashSlot]->getNext()->setNext(NULL);
     cout << "Deleted student " << temp->getStudent()->getFirst() << endl;
     delete temp;
-    return;
   }
-  if (head == nullptr) { //check for if the list is empty now (ie head was the only one)
-    return;
-  }
-  Node* current = head;
-  if (current->getNext()->getStudent()->getID() == deleteID) {
-    //check if next's ID is the one we want, since we need to be able to reassign this node's pointer
-    Node* toDelete = current->getNext();
-    Node* newNext = current->getNext()->getNext();
-    current->setNext(newNext); //skip the to be deleted node
-    cout << "Deleted student " << toDelete->getStudent()->getFirst() << endl;
-    delete toDelete; //and now delete it, like it was never there...
-  }
-  else { //walk through
-    Node* temp = current->getNext();
-    deleter(temp, deleteID); //recursion
-    }*/
 }
 
 void quitter(Node* head, bool &input) {
