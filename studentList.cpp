@@ -28,7 +28,8 @@ int hashFunc(Node* node, int tblSize);
 int main()
 {
   int tblSize = 101;
-  Node* table[tblSize];
+  Node* table[tblSize]; 
+  Node** tablePtr = table; //HEY!
   for (int a = 0; a < (sizeof(table) / sizeof(table[0])); a++) {
     table[a] = nullptr;
   }
@@ -41,37 +42,41 @@ int main()
   vector<string> firsts;
   fstream FirstsFile("first-names.txt");
   for (int a = 0; a < 30; a++) {
-    getline(FirstsFile, nameText);
-    FirstsFile.ignore(256, '\n');
+    FirstsFile >> nameText;
+    FirstsFile.ignore();
     firsts.push_back(nameText);
     nameText = "";
   }
-  //srand(time(NULL)); //random seed  
-  //cout << firsts[rand() % 25] << endl;
   FirstsFile.close();
 
   vector<string> lasts;
   fstream LastsFile("last-names.txt");
   for (int a = 0; a < 30; a++) {
-    getline(LastsFile, nameText);
-    LastsFile.ignore(256, '\n');
+    LastsFile >> nameText;
+    LastsFile.ignore();
     lasts.push_back(nameText);
     nameText = "";
   }
-  //cout << lasts[29] << endl;
   LastsFile.close();
 
   for (int a = 1; a < 6; a++) { //STUDENT GENERATOR
     Node* newStudent = genStudent(firsts, lasts, a);
     int hashSlot = hashFunc(newStudent, tblSize);
-    table[hashSlot] = newStudent;
-    cout << hashSlot << ": " << endl;
-    cout << table[hashSlot]->getStudent()->getFirst() << endl; //first
-    cout << "last name: " << table[hashSlot]->getStudent()->getLast() << endl; //last
-    cout << table[hashSlot]->getStudent()->getFirst() << "last name: " << table[hashSlot]->getStudent()->getLast() << endl; //BUGGED
+    if (table[hashSlot] == NULL) {
+      table[hashSlot] = newStudent;
+    }
+    else if (table[hashSlot]->getNext() == NULL) {
+      table[hashSlot]->setNext(newStudent);
+    }
+    else if (table[hashSlot]->getNext()->getNext() == NULL) {
+      table[hashSlot]->getNext()->setNext(newStudent);
+    }
+    else {
+      //rehash();
+    }
     //hash slot, colon, space, first, *last*
-    cout << hashSlot << ": " << table[hashSlot]->getStudent()->getFirst() << " " << table[hashSlot]->getStudent()->getLast() << endl;
-    cout << endl;
+    //cout << hashSlot << ": " << table[hashSlot]->getStudent()->getFirst() << " " << table[hashSlot]->getStudent()->getLast() << endl;
+    //cout << endl;
   }
 
   bool input = true;
@@ -202,7 +207,8 @@ Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount) {
   string newLast;
   newLast = lasts[randVal];
 
-  float newGPA = ((rand() % 501) / 100);
+  float newGPA = ((rand() % 501) / 100.0);
+  
   Student* newStu = new Student(false);
 
   newStu->setFirst(newFirst);
