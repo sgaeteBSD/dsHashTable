@@ -1,9 +1,9 @@
 /*
- * C++ Linked Student List
+ * Data Structures Hash Table
  * ADD and DELETE students to your Student List.
  * Program will keep track of student names, ID, and GPA.
- * ADD, PRINT, DELETE, QUIT, AVERAGE
- * 1/16/2025
+ * ADD, PRINT, DELETE, QUIT
+ * 2/7/2025
  * Santiago Gaete
  */
 
@@ -18,30 +18,30 @@
 
 using namespace std;
 
-void adder(Student* newStu, Node* table[], int tblSize);
-void printer(Node* table[], int tblSize);
-void deleter(Node* table[], int deleteID, int tblSize);
-void quitter(Node* head, bool &input);
+void adder(Student* newStu, Node** table, int tblSize);
+void printer(Node** table, int tblSize);
+void deleter(Node** table, int deleteID, int tblSize);
+void quitter(bool &input);
 Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount);
 int hashFunc(Node* node, int tblSize);
+void rehash(Node** &table, int &tblSize);
 
 int main()
 {
   int tblSize = 101;
-  Node* table[tblSize]; 
-  Node** tablePtr = table; //HEY!
-  for (int a = 0; a < (sizeof(table) / sizeof(table[0])); a++) {
-    table[a] = nullptr;
+  Node* tableOrig[tblSize]; 
+  Node** table = tableOrig;
+
+  for (int a = 0; a < (sizeof(tableOrig) / sizeof(tableOrig[0])); a++) {
+    table[a] = NULL;
   }
   cout << "Initialized 101-table nodes to null." << endl;
-
-  Node* head = nullptr;
 
   string nameText;
   
   vector<string> firsts;
   fstream FirstsFile("first-names.txt");
-  for (int a = 0; a < 30; a++) {
+  for (int a = 0; a < 300; a++) {
     FirstsFile >> nameText;
     FirstsFile.ignore();
     firsts.push_back(nameText);
@@ -51,7 +51,7 @@ int main()
 
   vector<string> lasts;
   fstream LastsFile("last-names.txt");
-  for (int a = 0; a < 30; a++) {
+  for (int a = 0; a < 300; a++) {
     LastsFile >> nameText;
     LastsFile.ignore();
     lasts.push_back(nameText);
@@ -59,9 +59,19 @@ int main()
   }
   LastsFile.close();
 
-  for (int a = 1; a < 6; a++) { //STUDENT GENERATOR
+  cout << "How many students would you like to randomly generate?" << endl;
+  int studentNum;
+  cin >> studentNum;
+
+  bool rehashed = false;
+  for (int a = 1; a < studentNum; a++) { //STUDENT GENERATOR
+    if (rehashed == false) {
     Node* newStudent = genStudent(firsts, lasts, a);
     int hashSlot = hashFunc(newStudent, tblSize);
+    /*if (rehashed == true) {
+      cout << a << endl;
+      cout << "BLARG" << hashSlot << endl;
+    }*/
     if (table[hashSlot] == NULL) {
       table[hashSlot] = newStudent;
     }
@@ -72,12 +82,32 @@ int main()
       table[hashSlot]->getNext()->setNext(newStudent);
     }
     else {
-      //rehash();
+      cout << "GOTTA REHASH" << hashSlot << endl;
+      rehash(table, tblSize);
+      cout << "we're back!" << endl;
+      int hashSlot = hashFunc(newStudent, tblSize);
+      if (table[hashSlot] == NULL) {
+	table[hashSlot] = newStudent;
+	cout << table[hashSlot]->getStudent()->getFirst() << endl;
+      }
+      else if (table[hashSlot]->getNext() == NULL) {
+	table[hashSlot]->setNext(newStudent);
+      	cout << table[hashSlot]->getNext()->getStudent()->getFirst() << "2" << endl;
+      }
+      else if (table[hashSlot]->getNext()->getNext() == NULL) {
+	table[hashSlot]->getNext()->setNext(newStudent);
+      	cout << table[hashSlot]->getNext()->getStudent()->getFirst() << "3" << endl;
+      }
+      cout << "hello" << hashSlot << endl;
+      rehashed = true;
     }
+  }
     //hash slot, colon, space, first, *last*
     //cout << hashSlot << ": " << table[hashSlot]->getStudent()->getFirst() << " " << table[hashSlot]->getStudent()->getLast() << endl;
     //cout << endl;
   }
+
+  //cout << table[3]->getStudent()->getFirst() << endl;
 
   bool input = true;
   while (input == true) {
@@ -102,7 +132,7 @@ int main()
         deleter(table, deleteID, tblSize);
     }
     else if (strcmp(command, "QUIT") == 0) {
-      quitter(head, input);
+      quitter(input);
     }
     else {
       cout << "Invalid input! Try again." << endl;
@@ -110,7 +140,7 @@ int main()
   }
 }
 
-void adder(Student* newStu, Node* table[], int tblSize) {
+void adder(Student* newStu, Node** table, int tblSize) {
   Node* newNode = new Node(newStu);
   int hashSlot = hashFunc(newNode, tblSize);
   if (table[hashSlot] == NULL) {
@@ -128,12 +158,12 @@ void adder(Student* newStu, Node* table[], int tblSize) {
       temp->setNext(newNode);
     }
     else { //rehash
-      //rehash
+      rehash(table, tblSize);
     }
   }
 }
     
-void printer(Node* table[], int tblSize) { //PRINT BY HASH TABLE
+void printer(Node** table, int tblSize) { //PRINT BY HASH TABLE
   for (int a = 0; a < tblSize; a++) {
     if (table[a] != NULL) {
       cout << a << ": " << table[a]->getStudent()->getFirst() << " " << table[a]->getStudent()->getLast() << ", "
@@ -158,7 +188,7 @@ void printer(Node* table[], int tblSize) { //PRINT BY HASH TABLE
   }
 }
   
-void deleter(Node* table[], int deleteID, int tblSize) {
+void deleter(Node** table, int deleteID, int tblSize) {
   Student* delFinder = new Student(false);
   delFinder->setID(deleteID);
   Node* deleteFinder = new Node(delFinder);
@@ -193,7 +223,7 @@ void deleter(Node* table[], int deleteID, int tblSize) {
   }
 }
 
-void quitter(Node* head, bool &input) {
+void quitter(bool &input) {
   cout << "Goodbye!" << endl;
   input = false;
 }
@@ -225,4 +255,41 @@ int hashFunc(Node* node, int tblSize) {
   int hashNum = (((6 * stuID + 17) % 647) % tblSize);
   //cout << hashNum << endl;
   return hashNum;
+}
+
+void rehash(Node** &table, int &tblSize) {
+  int oldSize = tblSize;
+  tblSize = (tblSize*2)+1;
+  Node* tableNew[tblSize]; 
+  //Node** table = tableNew;
+
+  for (int a = 0; a < (tblSize); a++) {
+    tableNew[a] = NULL;
+  }
+  int a = 0;
+  bool stillHash = true;
+  while (a < oldSize && stillHash == true) {
+    int hashSlot = hashFunc(table[a], tblSize);
+    if (tableNew[hashSlot] == NULL) {
+      tableNew[hashSlot] = table[a];
+    }
+    else if (tableNew[hashSlot]->getNext() == NULL) {
+      tableNew[hashSlot]->setNext(table[a]);
+    }
+    else if (tableNew[hashSlot]->getNext()->getNext() == NULL) {
+      tableNew[hashSlot]->getNext()->setNext(table[a]);
+    }
+    else {
+      stillHash = false;
+      rehash(table, tblSize);
+    }
+    a++;
+  }
+  cout << "hello?" << endl;
+  stillHash = false;
+  //Node** temp = table;
+  table = tableNew;
+  //cout << tableNew[105]->getStudent()->getLast() << endl;
+  //delete temp;
+  cout << "Rehashing complete! New table size: " << tblSize << endl;
 }
