@@ -29,10 +29,9 @@ void rehash(Node** &table, int &tblSize);
 int main()
 {
   int tblSize = 101;
-  Node* tableOrig[tblSize]; 
-  Node** table = tableOrig;
+  Node** table = new Node*[tblSize];
 
-  for (int a = 0; a < (sizeof(tableOrig) / sizeof(tableOrig[0])); a++) {
+  for (int a = 0; a < (tblSize); a++) {
     table[a] = NULL;
   }
   cout << "Initialized 101-table nodes to null." << endl;
@@ -65,7 +64,6 @@ int main()
 
   bool rehashed = false;
   for (int a = 1; a < studentNum; a++) { //STUDENT GENERATOR
-    if (rehashed == false) {
     Node* newStudent = genStudent(firsts, lasts, a);
     int hashSlot = hashFunc(newStudent, tblSize);
     /*if (rehashed == true) {
@@ -99,9 +97,7 @@ int main()
       	cout << table[hashSlot]->getNext()->getStudent()->getFirst() << "3" << endl;
       }
       cout << "hello" << hashSlot << endl;
-      rehashed = true;
     }
-  }
     //hash slot, colon, space, first, *last*
     //cout << hashSlot << ": " << table[hashSlot]->getStudent()->getFirst() << " " << table[hashSlot]->getStudent()->getLast() << endl;
     //cout << endl;
@@ -166,18 +162,18 @@ void adder(Student* newStu, Node** table, int tblSize) {
 void printer(Node** table, int tblSize) { //PRINT BY HASH TABLE
   for (int a = 0; a < tblSize; a++) {
     if (table[a] != NULL) {
-      cout << a << ": " << table[a]->getStudent()->getFirst() << " " << table[a]->getStudent()->getLast() << ", "
+      cout << "Hash " << a << ": " << table[a]->getStudent()->getFirst() << " " << table[a]->getStudent()->getLast() << ", "
 	<< table[a]->getStudent()->getID() << ", " << fixed << setprecision(2) << table[a]->getStudent()->getGPA()
 	<< endl;
 	
       if (table[a]->getNext() != NULL) {
-	cout << a << " (2): " << table[a]->getNext()->getStudent()->getFirst() << " "
+	cout << "Hash " << a << " (2): " << table[a]->getNext()->getStudent()->getFirst() << " "
 	     << table[a]->getNext()->getStudent()->getLast() << ", "
 	     << table[a]->getNext()->getStudent()->getID() << ", " << fixed << setprecision(2)
 	     << table[a]->getNext()->getStudent()->getGPA()
 	     << endl;
 	if (table[a]->getNext()->getNext() != NULL) {
-	  cout << a << " (3): " << table[a]->getNext()->getNext()->getStudent()->getFirst() << " "
+	  cout << "Hash " << a << " (3): " << table[a]->getNext()->getNext()->getStudent()->getFirst() << " "
 	       << table[a]->getNext()->getNext()->getStudent()->getLast() << ", "
 	       << table[a]->getNext()->getNext()->getStudent()->getID() << ", " << fixed << setprecision(2)
 	       << table[a]->getNext()->getNext()->getStudent()->getGPA()
@@ -229,7 +225,7 @@ void quitter(bool &input) {
 }
 
 Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount) {
-  int randVal = (rand() % 25);
+  int randVal = (rand() % 295);
   
   string newFirst;
   newFirst = firsts[randVal];
@@ -258,38 +254,61 @@ int hashFunc(Node* node, int tblSize) {
 }
 
 void rehash(Node** &table, int &tblSize) {
-  int oldSize = tblSize;
-  tblSize = (tblSize*2)+1;
-  Node* tableNew[tblSize]; 
-  //Node** table = tableNew;
+    int oldSize = tblSize;
+    tblSize = (tblSize * 2) + 1;  // Expand size (ensuring an odd number for better distribution)
 
-  for (int a = 0; a < (tblSize); a++) {
-    tableNew[a] = NULL;
-  }
-  int a = 0;
-  bool stillHash = true;
-  while (a < oldSize && stillHash == true) {
-    int hashSlot = hashFunc(table[a], tblSize);
-    if (tableNew[hashSlot] == NULL) {
-      tableNew[hashSlot] = table[a];
+    // Allocate new table dynamically
+    Node** tableNew = new Node*[tblSize];
+
+    // Initialize new table to NULL
+    for (int i = 0; i < tblSize; i++) {
+        tableNew[i] = NULL;
     }
-    else if (tableNew[hashSlot]->getNext() == NULL) {
-      tableNew[hashSlot]->setNext(table[a]);
+
+    // Reinsert elements into the new table
+    bool needsRehash = false;  // Flag to check if rehashing is needed again
+
+    for (int i = 0; i < oldSize; i++) {
+        Node* current = table[i];
+        while (current != nullptr) {
+            Node* nextNode = current->getNext(); // Save next node before rehashing
+            int newSlot = hashFunc(current, tblSize);
+	    
+            // Insert at new slot (handling chaining)
+            if (tableNew[newSlot] == nullptr) {
+                tableNew[newSlot] = current;
+                current->setNext(nullptr);
+            } 
+            else if (tableNew[newSlot]->getNext() == nullptr) {
+                tableNew[newSlot]->setNext(current);
+                current->setNext(nullptr);
+            } 
+            else if (tableNew[newSlot]->getNext()->getNext() == nullptr) {
+                tableNew[newSlot]->getNext()->setNext(current);
+                current->setNext(nullptr);
+            } 
+            else {
+                // If we reach this point, a chain exceeds 3, so we must rehash again
+                needsRehash = true;
+            }
+
+            current = nextNode; // Move to the next node in the old list
+        }
     }
-    else if (tableNew[hashSlot]->getNext()->getNext() == NULL) {
-      tableNew[hashSlot]->getNext()->setNext(table[a]);
+    cout << "haha" <<endl;
+
+    // Free old table memory
+    //delete[] table;
+
+    // Assign new table
+    table = tableNew;
+
+    cout << "Rehashing complete! New table size: " << tblSize << endl;
+
+    // If any chain exceeded 3 nodes, rehash again
+    if (needsRehash) {
+        cout << "Chain exceeded length 3, rehashing again..." << endl;
+        rehash(table, tblSize);
     }
-    else {
-      stillHash = false;
-      rehash(table, tblSize);
-    }
-    a++;
-  }
-  cout << "hello?" << endl;
-  stillHash = false;
-  //Node** temp = table;
-  table = tableNew;
-  //cout << tableNew[105]->getStudent()->getLast() << endl;
-  //delete temp;
-  cout << "Rehashing complete! New table size: " << tblSize << endl;
 }
+
