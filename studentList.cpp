@@ -12,7 +12,6 @@
 #include <iostream>
 #include <cstring>
 #include <iomanip>
-
 #include <vector>
 #include <fstream>
 
@@ -28,22 +27,22 @@ void rehash(Node** &table, int &tblSize);
 
 int main()
 {
-  int tblSize = 101;
-  Node** table = new Node*[tblSize];
+  int tblSize = 101; //initial table size
+  Node** table = new Node*[tblSize]; //double ptr to table
 
-  for (int a = 0; a < (tblSize); a++) {
+  for (int a = 0; a < (tblSize); a++) { //init table slots to null
     table[a] = NULL;
   }
   cout << "Initialized 101-table nodes to null." << endl;
 
-  string nameText;
+  string nameText; //for grabbing names
   
   vector<string> firsts;
-  fstream FirstsFile("first-names.txt");
+  fstream FirstsFile("first-names.txt"); //read from file
   for (int a = 0; a < 300; a++) {
     FirstsFile >> nameText;
     FirstsFile.ignore();
-    firsts.push_back(nameText);
+    firsts.push_back(nameText); //add to vector
     nameText = "";
   }
   FirstsFile.close();
@@ -62,48 +61,34 @@ int main()
   int studentNum;
   cin >> studentNum;
 
-  bool rehashed = false;
   for (int a = 1; a < studentNum; a++) { //STUDENT GENERATOR
     Node* newStudent = genStudent(firsts, lasts, a);
     int hashSlot = hashFunc(newStudent, tblSize);
-    /*if (rehashed == true) {
-      cout << a << endl;
-      cout << "BLARG" << hashSlot << endl;
-    }*/
-    if (table[hashSlot] == NULL) {
+    
+    if (table[hashSlot] == NULL) { //check if table slot open
       table[hashSlot] = newStudent;
     }
-    else if (table[hashSlot]->getNext() == NULL) {
+    else if (table[hashSlot]->getNext() == NULL) { //check if second node is open
       table[hashSlot]->setNext(newStudent);
     }
-    else if (table[hashSlot]->getNext()->getNext() == NULL) {
+    else if (table[hashSlot]->getNext()->getNext() == NULL) { //check if third node is open
       table[hashSlot]->getNext()->setNext(newStudent);
     }
-    else {
-      cout << "GOTTA REHASH" << hashSlot << endl;
+    else { //else, rehash
       rehash(table, tblSize);
-      cout << "we're back!" << endl;
+      //rerun code to hash in the student who previously failed and caused rehash
       int hashSlot = hashFunc(newStudent, tblSize);
       if (table[hashSlot] == NULL) {
 	table[hashSlot] = newStudent;
-	cout << table[hashSlot]->getStudent()->getFirst() << endl;
       }
       else if (table[hashSlot]->getNext() == NULL) {
 	table[hashSlot]->setNext(newStudent);
-      	cout << table[hashSlot]->getNext()->getStudent()->getFirst() << "2" << endl;
       }
       else if (table[hashSlot]->getNext()->getNext() == NULL) {
 	table[hashSlot]->getNext()->setNext(newStudent);
-      	cout << table[hashSlot]->getNext()->getStudent()->getFirst() << "3" << endl;
       }
-      cout << "hello" << hashSlot << endl;
     }
-    //hash slot, colon, space, first, *last*
-    //cout << hashSlot << ": " << table[hashSlot]->getStudent()->getFirst() << " " << table[hashSlot]->getStudent()->getLast() << endl;
-    //cout << endl;
   }
-
-  //cout << table[3]->getStudent()->getFirst() << endl;
 
   bool input = true;
   while (input == true) {
@@ -139,17 +124,17 @@ int main()
 void adder(Student* newStu, Node** table, int tblSize) {
   Node* newNode = new Node(newStu);
   int hashSlot = hashFunc(newNode, tblSize);
-  if (table[hashSlot] == NULL) {
+  if (table[hashSlot] == NULL) { //if free slot
     table[hashSlot] = newNode;
     cout << newStu->getFirst() << " has been added." << endl;
   }
-  //work on collisions/chaining here
-  else { //if head needs to be replaced with a greater ID
-    if (table[hashSlot]->getNext() == nullptr) {
+  //chaining here
+  else {
+    if (table[hashSlot]->getNext() == nullptr) { //linked slot 2
       Node* head = table[hashSlot];
       head->setNext(newNode);
     }
-    else if (table[hashSlot]->getNext()->getNext() == nullptr) {
+    else if (table[hashSlot]->getNext()->getNext() == nullptr) { //linked slot 3
       Node* temp = table[hashSlot]->getNext();
       temp->setNext(newNode);
     }
@@ -185,11 +170,13 @@ void printer(Node** table, int tblSize) { //PRINT BY HASH TABLE
 }
   
 void deleter(Node** table, int deleteID, int tblSize) {
+  //create node to hash and find where this student should be stored in the table
   Student* delFinder = new Student(false);
   delFinder->setID(deleteID);
   Node* deleteFinder = new Node(delFinder);
   int hashSlot = hashFunc(deleteFinder, tblSize);
-  if (table[hashSlot]->getStudent()->getID() == deleteID) {
+
+  if (table[hashSlot]->getStudent()->getID() == deleteID) { //check 1st
     if (table[hashSlot]->getNext() != NULL) {
       Node* temp = table[hashSlot];
       table[hashSlot] = temp->getNext();
@@ -203,7 +190,7 @@ void deleter(Node** table, int deleteID, int tblSize) {
       delete temp;
     }
   }
-  else if (table[hashSlot]->getNext()->getStudent()->getID() == deleteID) {
+  else if (table[hashSlot]->getNext()->getStudent()->getID() == deleteID) { //check 2nd
     if (table[hashSlot]->getNext() != NULL) {
       Node* temp = table[hashSlot]->getNext();
       table[hashSlot]->setNext(temp->getNext());
@@ -211,7 +198,7 @@ void deleter(Node** table, int deleteID, int tblSize) {
       delete temp;
     }
   }
-  else if (table[hashSlot]->getNext()->getNext()->getStudent()->getID() == deleteID) {
+  else if (table[hashSlot]->getNext()->getNext()->getStudent()->getID() == deleteID) { //check 3rd
     Node* temp = table[hashSlot]->getNext()->getNext();
     table[hashSlot]->getNext()->setNext(NULL);
     cout << "Deleted student " << temp->getStudent()->getFirst() << endl;
@@ -219,7 +206,7 @@ void deleter(Node** table, int deleteID, int tblSize) {
   }
 }
 
-void quitter(bool &input) {
+void quitter(bool &input) { //quit
   cout << "Goodbye!" << endl;
   input = false;
 }
@@ -235,7 +222,7 @@ Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount) {
 
   float newGPA = ((rand() % 501) / 100.0);
   
-  Student* newStu = new Student(false);
+  Student* newStu = new Student(false); //create new student without prompting user
 
   newStu->setFirst(newFirst);
   newStu->setLast(newLast);
@@ -248,33 +235,29 @@ Node* genStudent(vector<string> firsts, vector<string> lasts, int idCount) {
 int hashFunc(Node* node, int tblSize) {
   //hash
   int stuID = node->getStudent()->getID();
-  int hashNum = (((6 * stuID + 17) % 647) % tblSize);
+  int hashNum = (((6 * stuID + 17) % 647) % tblSize); //simple hash that grows with tblSize
   //cout << hashNum << endl;
   return hashNum;
 }
 
 void rehash(Node** &table, int &tblSize) {
     int oldSize = tblSize;
-    tblSize = (tblSize * 2) + 1;  // Expand size (ensuring an odd number for better distribution)
-
-    // Allocate new table dynamically
+    tblSize = (tblSize * 2) + 1; //expand size
     Node** tableNew = new Node*[tblSize];
 
-    // Initialize new table to NULL
-    for (int i = 0; i < tblSize; i++) {
+    for (int i = 0; i < tblSize; i++) { //init new table to null
         tableNew[i] = NULL;
     }
 
-    // Reinsert elements into the new table
-    bool needsRehash = false;  // Flag to check if rehashing is needed again
+    bool needsRehash = false; //check if rehashing is needed again
 
-    for (int i = 0; i < oldSize; i++) {
-        Node* current = table[i];
+    for (int a = 0; a < oldSize; a++) {
+        Node* current = table[a];
         while (current != nullptr) {
-            Node* nextNode = current->getNext(); // Save next node before rehashing
+            Node* nextNode = current->getNext(); //save next node before rehashing
             int newSlot = hashFunc(current, tblSize);
 	    
-            // Insert at new slot (handling chaining)
+            //insert at new slot (handling chaining)
             if (tableNew[newSlot] == nullptr) {
                 tableNew[newSlot] = current;
                 current->setNext(nullptr);
@@ -288,26 +271,25 @@ void rehash(Node** &table, int &tblSize) {
                 current->setNext(nullptr);
             } 
             else {
-                // If we reach this point, a chain exceeds 3, so we must rehash again
+                //we must rehash again
                 needsRehash = true;
             }
 
-            current = nextNode; // Move to the next node in the old list
+            current = nextNode; //move to next node in the old list
         }
     }
-    cout << "haha" <<endl;
 
-    // Free old table memory
-    //delete[] table;
+    //free old table memory
+    delete[] table;
 
-    // Assign new table
+    //assign new table
     table = tableNew;
 
     cout << "Rehashing complete! New table size: " << tblSize << endl;
 
-    // If any chain exceeded 3 nodes, rehash again
+    //if any chain exceeded 3 nodes, rehash again
     if (needsRehash) {
-        cout << "Chain exceeded length 3, rehashing again..." << endl;
+        cout << "Chain exceeded length of 3, rehashing again..." << endl;
         rehash(table, tblSize);
     }
 }
